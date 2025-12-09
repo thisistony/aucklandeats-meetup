@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f0e8;
+  --background-strong: #ede4d6;
+  --foreground: #1f1f1f;
+  --muted: #5f5a55;
+  --accent: #2f8f66;
+  --accent-soft: #dbeee4;
+  --accent-amber: #f3c77c;
+  --card-border: #e6dccf;
+  --shadow: 0 25px 80px rgba(24, 22, 19, 0.18);
 }
 
 @theme inline {
@@ -12,15 +19,65 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(47, 143, 102, 0.12), transparent 38%),
+    radial-gradient(circle at 88% 8%, rgba(243, 199, 124, 0.18), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(47, 143, 102, 0.08), transparent 35%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(47, 143, 102, 0.16);
+  color: var(--foreground);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.soft-card {
+  background: linear-gradient(145deg, #ffffff, #f9f3ea);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(25, 19, 10, 0.12);
+}
+
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(47, 143, 102, 0.4);
+  outline-offset: 2px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--card-border);
 }

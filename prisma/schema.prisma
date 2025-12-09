@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  redditUsername String   @unique
+  createdAt     DateTime  @default(now())
+
+  events        Event[]
+  rsvps         RSVP[]
+  restaurantVotes RestaurantVote[]
+  timeSlotVotes TimeSlotVote[]
+  comments      Comment[]
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  startTime   DateTime?
+  endTime     DateTime?
+  location    String?
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+
+  restaurants Restaurant[]
+  timeSlots   TimeSlot[]
+  rsvps       RSVP[]
+  comments    Comment[]
+}
+
+model Restaurant {
+  id              String    @id @default(cuid())
+  eventId         String
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name            String
+  address         String
+  placeId         String?   // Google Maps Place ID
+  latitude        Float?
+  longitude       Float?
+  createdAt       DateTime  @default(now())
+
+  votes           RestaurantVote[]
+}
+
+model TimeSlot {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime  @default(now())
+
+  votes       TimeSlotVote[]
+}
+
+model RSVP {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  status      String    // "going", "maybe", "not_going"
+  createdAt   DateTime  @default(now())
+
+  @@unique([eventId, userId])
+}
+
+model RestaurantVote {
+  id            String      @id @default(cuid())
+  restaurantId  String
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@unique([restaurantId, userId])
+}
+
+model TimeSlotVote {
+  id          String    @id @default(cuid())
+  timeSlotId  String
+  timeSlot    TimeSlot  @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([timeSlotId, userId])
+}
+
+model Comment {
+  id          String    @id @default(cuid())
+  eventId     String
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  content     String
+  createdAt   DateTime  @default(now())
+}

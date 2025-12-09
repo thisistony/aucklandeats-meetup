@@ -22,8 +22,6 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null)
   const [events, setEvents] = useState<Event[]>([])
   const [username, setUsername] = useState('')
-  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid' | 'error'>('idle')
-  const [usernameHint, setUsernameHint] = useState<string>('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [eventTitle, setEventTitle] = useState('')
@@ -74,49 +72,6 @@ export default function Home() {
     }
   }
 
-  // Debounced username existence check via server proxy (no token required).
-  useEffect(() => {
-    if (!username) {
-      setUsernameStatus('idle')
-      setUsernameHint('')
-      return
-    }
-
-    setUsernameStatus('checking')
-    setUsernameHint('')
-
-    const handle = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/auth/username-check?username=${encodeURIComponent(username)}`)
-        const data = await res.json()
-        if (data.exists) {
-          setUsernameStatus('valid')
-          if (data.canonical && data.caseMismatch) {
-            setUsernameHint(`Found: use "${data.canonical}"`)
-          } else {
-            setUsernameHint('Username found on Reddit')
-          }
-        } else if (data.reason === 'not_found') {
-          setUsernameStatus('invalid')
-          setUsernameHint('Username not found on Reddit')
-        } else if (data.error === 'timeout') {
-          setUsernameStatus('error')
-          setUsernameHint('Reddit is slow; please try again')
-        } else if (data.error === 'rate_limited') {
-          setUsernameStatus('error')
-          setUsernameHint('Reddit rate limited; retry soon')
-        } else {
-          setUsernameStatus('error')
-          setUsernameHint('Could not verify; try again')
-        }
-      } catch (error) {
-        setUsernameStatus('error')
-        setUsernameHint('Check failed; try again')
-      }
-    }, 400)
-
-    return () => clearTimeout(handle)
-  }, [username])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -258,12 +213,6 @@ export default function Home() {
                 className="w-full sm:w-60 bg-transparent px-4 py-2 rounded-full text-sm text-[#1f1f1f] placeholder:text-[#8c8379] border border-transparent focus:border-[#dbeee4] focus:ring-2 focus:ring-[#2f8f66]/30"
                 required
               />
-              <div className="text-xs text-[#5f5a55] min-w-[120px] text-center px-2">
-                {usernameStatus === 'checking' && <span className="text-[#2f8f66]">Checking...</span>}
-                {usernameStatus === 'valid' && <span className="text-[#2f8f66] font-semibold">Found</span>}
-                {usernameStatus === 'invalid' && <span className="text-[#b23b3b] font-semibold">Not found</span>}
-                {usernameStatus === 'error' && <span className="text-[#b23b3b]">Check failed</span>}
-              </div>
               <button
                 type="submit"
                 className="flex items-center gap-2 px-5 py-2 bg-[#2f8f66] text-white rounded-full shadow hover:brightness-95 transition"

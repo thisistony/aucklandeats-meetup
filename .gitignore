@@ -46,3 +46,7 @@ next-env.d.ts
 # local sqlite artifacts
 dev.db
 prisma/dev.db
+.ssh/
+id_ed25519.pub
+*.pem
+*.key
